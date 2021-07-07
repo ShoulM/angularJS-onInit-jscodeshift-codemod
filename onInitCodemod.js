@@ -3,15 +3,18 @@ export default function transformer(file, api) {
     const ngLifeCycleHooks = ['$onChanges', '$doCheck', '$onDestroy', '$postLink'];
 
     j.registerMethods({
+      	//returns true if controller has a $onInit life cycle hook
         doesControllerHaveOnInitHook: function() {
             return this.find(j.FunctionExpression)
                 .closest(j.AssignmentExpression)
                 .filter((path) => path.node.left.property.name === "$onInit").length
         },
+      	//finds all nodes belonging to angularjs life cycle hooks (e.g $onDestroy)
         findNgLifeCycleHookFunctions: function() {
             return this.find(j.MemberExpression, (node) => ngLifeCycleHooks.indexOf(node.property.name) > -1)
                 .closest(j.ExpressionStatement);
         },
+      	//finds all nodes that are variable declarations of this closure (e.g var vm = this;)
         findThisClosureVariableDeclerations: function(controllerFunctionPath) {
             return this.find(j.VariableDeclarator, (node) => node.init.type === j.ThisExpression.name)
                 .filter((path) => path.parent.parent.parent.node === controllerFunctionPath.node)
@@ -23,7 +26,7 @@ export default function transformer(file, api) {
 
     //finds controllers defined as part of component
     let componentInlineControllers = root
-        .find(j.CallExpression, (node) => node.callee.object.name === 'app' &&
+        .find(j.CallExpression, (node) => node.callee.object && node.callee.object.name === 'app' &&
             node.callee.property.name === 'component')
         .find(j.ObjectExpression)
         .find(j.FunctionExpression)
@@ -40,6 +43,7 @@ export default function transformer(file, api) {
             }
             return propertyParentNode.key.name === 'controller';
         });
+  	
 
     //find all stand alone controllers
     let controllers = root
@@ -56,9 +60,11 @@ export default function transformer(file, api) {
             else {
                 return false;
             }
-            return callExpressionParentNode.callee.object.name === "app" &&
+            return callExpressionParentNode.callee.object && callExpressionParentNode.callee.object.name === "app" &&
                 callExpressionParentNode.callee.property.name === "controller"
         });
+  
+  console.log('here')
 
     let allControllers = j(controllers.paths().concat(componentInlineControllers.paths()));
 
