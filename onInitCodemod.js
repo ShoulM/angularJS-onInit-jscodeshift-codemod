@@ -63,8 +63,6 @@ export default function transformer(file, api) {
             return callExpressionParentNode.callee.object && callExpressionParentNode.callee.object.name === "app" &&
                 callExpressionParentNode.callee.property.name === "controller"
         });
-  
-  console.log('here')
 
     let allControllers = j(controllers.paths().concat(componentInlineControllers.paths()));
 
