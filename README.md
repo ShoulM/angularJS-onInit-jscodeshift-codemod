@@ -19,3 +19,6 @@ Open command line in the folder and run:
 $ jscodeshift ./custom.js
 ```
 The custom.js file will be overidden with the transformed code.
+
+For more options go to: 
+https://github.com/facebook/jscodeshift
