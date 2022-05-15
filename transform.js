@@ -5,7 +5,10 @@ export default function transformer(file, api) {
     j.registerMethods({
       	//returns true if controller has a $onInit life cycle hook
         doesControllerHaveOnInitHook: function() {
-            return this.find(j.FunctionExpression)
+          	let functionExpressions = this.find(j.FunctionExpression);
+          	let arrowFunctionExpressions = this.find(j.ArrowFunctionExpression);
+          	let allFunctionExpressions = j(functionExpressions.paths().concat(arrowFunctionExpressions.paths()));
+            return allFunctionExpressions
                 .closest(j.AssignmentExpression)
                 .filter((path) => path.node.left.property.name === "$onInit").length
         },
